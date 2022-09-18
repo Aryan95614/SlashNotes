@@ -7,7 +7,7 @@ import Link from 'next/link'
 import Header from '../components/Header'
 import { sanityClient, urlFor } from '../sanity'
 import { Post } from '../typings'
-import {VStack, Text, Button, WrapItem, Wrap, Box, Heading,  FormControl, FormLabel, Input, Center} from '@chakra-ui/react'
+import {VStack, Text, Button, WrapItem, Wrap, Box, Heading,  FormControl, FormLabel, Input, Center, HStack} from '@chakra-ui/react'
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Formik} from 'formik';
@@ -24,6 +24,7 @@ const Home: NextPage<Props> = (props) => {
   let responce:string = "[----]";
   let ids:string = "";
   let status:any = 0;
+  let chapters:any = [];
   
   let component:any = '';
   const [values, setValues] = useState("");
@@ -165,6 +166,7 @@ const Home: NextPage<Props> = (props) => {
             audio_url: audio_urls,
             auto_chapters: true,
             //content_safety: true,
+            
         })
         .then((res) => {
           console.log(res.data);
@@ -172,6 +174,7 @@ const Home: NextPage<Props> = (props) => {
           ids=res.data.id;
           responce = res.data.text;
           console.log(something);
+          chapters = res.data.chapters;
           return res.data.id;
         })
         .catch((err) => console.error(err));
@@ -217,28 +220,33 @@ const Home: NextPage<Props> = (props) => {
               <div className='p-5'>
                   {values!=""  ? (
                   <CardInfo title='Information' text={"The Text Is:" + values}/>
+                  {chapters.map((element:any) => {
+                    <Text> Chapter: {element}</Text>
+                  })}
                 ) : (
                   <Text fontSize='1xl'></Text>
                 )}
               </div>
             </Center>
             {/* Link Stuff */}
-            
-            {props.posts.map(post=>(                          
-                        <Link key={post._id} href={`/post/${post.slug.current}`}>
-                                  <div className='group cursor-pointer border rounded-lg overflow-hidden p-1'>
-                                  <img className='h-60 w-full object-cover group-hover:scale-105 duration-200 ease-in-out' src={urlFor(post.mainImage).url()!} alt="" />
-                                    <div className='flex justify-between p-4 bg-white'>
-                                        <div>
-                                          <p className='text-lg font-bold'>{post.title}</p>
-                                          <p className='text-xs'>{post.description} by {post.author.name}</p>                                                              
+            <HStack>
+                {props.posts.map(post=>(       
+                      <div className='w-80'>          
+                            <Link key={post._id} href={`/post/${post.slug.current}`}>
+                                      <div className='group cursor-pointer border rounded-lg overflow-hidden p-1'>
+                                      <img className='h-60 w-full object-cover group-hover:scale-105 duration-200 ease-in-out' src={urlFor(post.mainImage).url()!} alt="" />
+                                        <div className='flex justify-between p-4 bg-white'>
+                                            <div>
+                                              <p className='text-lg font-bold'>{post.title}</p>
+                                              <p className='text-xs'>{post.description} by {post.author.name}</p>                                                              
+                                            </div>
+                                            <img className='h-12 w-12 rounded-full' src={urlFor(post.author.image).url()!} alt="" />
                                         </div>
-                                        <img className='h-12 w-12 rounded-full' src={urlFor(post.author.image).url()!} alt="" />
-                                    </div>
-                                  </div>
-                        </Link>  
-                      ))}
-                    
+                                      </div>
+                            </Link>  
+                          </div>         
+                          ))}
+              </HStack>        
             
           </VStack>
         </div>
